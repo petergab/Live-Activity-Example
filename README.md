@@ -1,6 +1,7 @@
 # Live Activity Example for iOS 16
 
 <img src="https://user-images.githubusercontent.com/78183482/214468406-c13160aa-d370-4a25-95e2-b2f3f529324d.png" width="300">
+<img src="https://github.com/petergab/Live-Activity-Example/blob/main/demo.png" width="300">
 
 A small app showing how to build a basic [Live Activity](https://developer.apple.com/documentation/activitykit/displaying-live-data-with-live-activities) for iOS 16 in Swift.
 
