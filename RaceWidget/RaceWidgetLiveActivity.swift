@@ -1,5 +1,3 @@
-// Copyright 2023 Itty Bitty Apps Pty Ltd. See LICENSE file.
-
 import ActivityKit
 import WidgetKit
 import SwiftUI
@@ -9,173 +7,176 @@ struct RaceWidgetLiveActivity: Widget {
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: RaceWidgetAttributes.self) { context in
       // Lock screen definition
-      VStack {
-        TrackInformation(
-          track: context.attributes.track,
-          raceStartTime: context.attributes.raceStartTime,
-          currentLapNumber: context.state.currentLapCount,
-          raceRunning: context.state.raceIsRunning
-        )
-
-        RaceStateView(
-          raceOrder: context.state.raceOrder,
-          fastestLap: context.state.fastestLap
-        )
+      ZStack {
+        VStack {
+          RoomInformation()
+        }
+        .padding()
       }
-      .padding()
+      .background(Color("WidgetBackground"))
+      .foregroundColor(.white)
     } dynamicIsland: { context in
       DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
-          HStack {
-            Image(systemName: "timer")
-            Text(
-              timerInterval: context.attributes.raceStartTime...Date.distantFuture,
-              countsDown: false
-            )
+          HStack (alignment: .top) {
+            Image("room")
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+              .frame(width: 56, height: 56, alignment: .center)
+              .clipped()
+              .cornerRadius(10)
+            VStack(alignment: .leading) {
+              Text("Pankhurst").font(.system(size: 10))
+              Text("Ground Floor").font(.system(size: 10))
+            }
           }
         }
         DynamicIslandExpandedRegion(.trailing) {
-          Text("\(context.state.currentLapCount) / \(context.attributes.track.totalLapCount)")
-            .accessibilityLabel("Lap \(context.state.currentLapCount) of \(context.attributes.track.totalLapCount)")
+          Image("logo")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 50, alignment: .leading)
         }
         DynamicIslandExpandedRegion(.bottom) {
-          RaceStateView(
-            raceOrder: context.state.raceOrder,
-            fastestLap: context.state.fastestLap
-          )
+          HStack (alignment: .center) {
+            Text(
+              "Your booking ends in \(timerInterval: Date()...Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: Date()) + 1, minute: 0, second: 0, of: Date())!, countsDown: true) min"
+            )
+              .font(.system(size: 14))
+              .monospacedDigit()
+            
+            Spacer()
+            
+            Button(action: {}) {
+              Text("EXTEND")
+                .bold()
+                .font(.system(size: 14))
+            }
+            .foregroundColor(Color("WidgetBackground"))
+            .background(Color("AccentColor"))
+            .cornerRadius(20)
+          }
+          
+          TimelineView()
         }
       } compactLeading: {
-        Text("1. ").font(.callout) + Text("#\(context.state.raceOrder.first.number)")
-          .foregroundColor(context.state.raceOrder.first.team.color)
-          .monospacedDigit()
-          .accessibilityLabel("First, number \(context.state.raceOrder.first.number)")
-      } compactTrailing: {
-        Text("\(context.state.currentLapCount) / \(context.attributes.track.totalLapCount)")
-          .accessibilityLabel("Lap \(context.state.currentLapCount) of \(context.attributes.track.totalLapCount)")
-      } minimal: {
-        Text("#\(context.state.raceOrder.first.number)")
-          .foregroundColor(context.state.raceOrder.first.team.color)
-          .accessibilityLabel("First, number \(context.state.raceOrder.first.number)")
-      }
-    }
-  }
-}
-
-struct FastestLapView: View {
-  let fastestLap: FastestLap
-
-  var body: some View {
-    Grid(alignment: .leading) {
-      Text("Fastest Lap")
-        .font(.title3)
-
-      GridRow {
-        RoundedRectangle(cornerRadius: 2)
-          .foregroundColor(fastestLap.driver.team.color)
-          .frame(width: 22, height: 22)
-        Text(fastestLap.driver.name)
-      }
-
-      GridRow {
-        Image(systemName: "timer")
-          .frame(width: 18, height: 18)
-          .padding(2)
-          .background {
-            RoundedRectangle(cornerRadius: 2)
-              .foregroundColor(Color(red: 0.63, green: 0.26, blue: 0.84))
-          }
-          .foregroundColor(.white)
-          .accessibilityHidden(true)
-        Text(fastestLap.stringRepresenation)
-      }
-    }
-    .accessibilityElement(children: .combine)
-  }
-}
-
-struct TrackInformation: View {
-  @Environment(\.isLuminanceReduced) var isLuminanceReduced
-
-  let track: Track
-  let raceStartTime: Date
-  let currentLapNumber: Int
-  let raceRunning: Bool
-
-  var body: some View {
-    HStack {
-      Text(track.name)
-        .font(.title)
-      if raceRunning {
-        if isLuminanceReduced {
-          EmptyView()
-        } else {
-          Text(
-            timerInterval: raceStartTime...Date.distantFuture,
-            countsDown: false
-          )
+        HStack (alignment: .center) {
+          Image("room")
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 36, height: 36, alignment: .center)
+            .clipped()
+            .cornerRadius(10)
+          Text("Pankhurst")
+            .font(.callout)
+            .foregroundColor(Color("AccentColor"))
+            .accessibilityLabel("Room: Pankhurst")
         }
-      } else {
-        Text("Finished")
+      } compactTrailing: {
+        Spacer()
+        Text("\(timerInterval: Date()...Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: Date()) + 1, minute: 0, second: 0, of: Date())!, countsDown: true)")
+          .monospacedDigit()
+          .accessibilityLabel("Remaining time \(timerInterval: Date()...Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: Date()) + 1, minute: 0, second: 0, of: Date())!, countsDown: true)")
+      } minimal: {
+        Text(
+          "\(timerInterval: Date()...Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: Date()) + 1, minute: 0, second: 0, of: Date())!, countsDown: true)"
+        )
+          .foregroundColor(Color("AccentColor"))
       }
-
-      Spacer()
-
-      Text("\(currentLapNumber) / \(track.totalLapCount)")
-        .accessibilityLabel("Lap \(currentLapNumber) of \(track.totalLapCount)")
     }
-    .monospacedDigit()
   }
 }
 
-struct RaceOrderView: View {
-  let raceOrder: RaceOrder
-
+struct RoomInformation: View {
   var body: some View {
-    VStack(alignment: .leading) {
-      HStack {
-        Text("1.")
-          .monospacedDigit()
-        Capsule()
-          .foregroundColor(raceOrder.first.team.color)
-          .frame(width: 5, height: 20)
-        Text(raceOrder.first.name)
+    HStack (alignment: .top) {
+      Image("room")
+        .resizable()
+        .aspectRatio(contentMode: .fill)
+        .frame(width: 64, height: 64, alignment: .center)
+        .clipped()
+        .cornerRadius(10)
+      VStack(alignment: .leading) {
+        Text("Room: Pankhurst").font(.system(size: 14))
+        Text("Floor: Ground Floor").font(.system(size: 14))
       }
-
-      HStack {
-        Text("2.")
-          .monospacedDigit()
-        Capsule()
-          .foregroundColor(raceOrder.second.team.color)
-          .frame(width: 5, height: 20)
-        Text(raceOrder.second.name)
-      }
-
-      HStack {
-        Text("3.")
-          .monospacedDigit()
-        Capsule()
-          .foregroundColor(raceOrder.third.team.color)
-          .frame(width: 5, height: 20)
-        Text(raceOrder.third.name)
-      }
+      
+      Spacer()
+      
+      Image("logo")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 120, alignment: .top)
     }
-    .accessibilityElement(children: .combine)
+    
+    HStack (alignment: .center) {
+      Text(
+        "Your booking ends in \(timerInterval: Date()...Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: Date()) + 1, minute: 0, second: 0, of: Date())!, countsDown: true) min"
+      )
+        .font(.system(size: 14))
+        .monospacedDigit()
+      
+      Spacer()
+      
+      Button(action: {}) {
+        Text("EXTEND")
+          .bold()
+          .font(.system(size: 14))
+      }
+      .foregroundColor(Color("WidgetBackground"))
+      .background(Color("AccentColor"))
+      .cornerRadius(20)
+    }
+    
+    TimelineView()
   }
 }
 
-struct RaceStateView: View {
-  let raceOrder: RaceOrder
-  let fastestLap: FastestLap
-
-  var body: some View {
-    HStack {
-      RaceOrderView(raceOrder: raceOrder)
-
-      Spacer()
-
-      FastestLapView(fastestLap: fastestLap)
+struct TimelineView: View {
+    @State private var currentTime = Date()
+    private let calendar = Calendar.current
+    
+    private var startOfPreviousHour: Date {
+        calendar.date(bySetting: .minute, value: 0, of: calendar.date(byAdding: .hour, value: -1, to: currentTime)!)!
     }
-  }
+    
+    private var startOfNextHour: Date {
+        calendar.date(bySetting: .minute, value: 0, of: calendar.date(byAdding: .hour, value: 0, to: currentTime)!)!
+    }
+    
+    private var timeline: ClosedRange<Date> {
+        startOfPreviousHour...startOfNextHour
+    }
+    
+    private var currentPointerPosition: CGFloat {
+        let totalInterval = startOfNextHour.timeIntervalSince(startOfPreviousHour)
+        let currentInterval = currentTime.timeIntervalSince(startOfPreviousHour)
+        let progress = CGFloat(currentInterval / totalInterval)
+        return progress
+    }
+    
+    var body: some View {
+        VStack {
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .frame(width: geometry.size.width, height: 6)
+                        .cornerRadius(3)
+                        .foregroundColor(.white)
+                    
+                    Circle()
+                        .frame(width: 12, height: 12)
+                        .foregroundColor(Color("AccentColor"))
+                        .position(x: geometry.size.width * currentPointerPosition, y: 5)
+                }
+            }
+        }
+        .onAppear {
+            Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                currentTime = Date()
+            }
+        }
+    }
 }
 
 struct RaceLiveActivity_Previews: PreviewProvider {
@@ -185,29 +186,29 @@ struct RaceLiveActivity_Previews: PreviewProvider {
         track: Track.albertPark,
         raceStartTime: Date(timeIntervalSinceNow: -(60 * 30))
       )
-        .previewContext(
-          RaceWidgetAttributes.ContentState(
-            raceOrder: RaceOrder.mock,
-            fastestLap: FastestLap.mock,
-            currentLapCount: 24,
-            raceIsRunning: true
-          ),
-          viewKind: .content
-        )
-
+      .previewContext(
+        RaceWidgetAttributes.ContentState(
+          raceOrder: RaceOrder.mock,
+          fastestLap: FastestLap.mock,
+          currentLapCount: 24,
+          raceIsRunning: true
+        ),
+        viewKind: .content
+      )
+      
       RaceWidgetAttributes(
         track: Track.albertPark,
         raceStartTime: Date(timeIntervalSinceNow: -(60 * 30))
       )
-        .previewContext(
-          RaceWidgetAttributes.ContentState(
-            raceOrder: RaceOrder.mock,
-            fastestLap: FastestLap.mock,
-            currentLapCount: 24,
-            raceIsRunning: true
-          ),
-          viewKind: .dynamicIsland(.expanded)
-        )
+      .previewContext(
+        RaceWidgetAttributes.ContentState(
+          raceOrder: RaceOrder.mock,
+          fastestLap: FastestLap.mock,
+          currentLapCount: 24,
+          raceIsRunning: true
+        ),
+        viewKind: .dynamicIsland(.expanded)
+      )
     }
   }
 }
